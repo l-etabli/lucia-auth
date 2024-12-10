@@ -1,0 +1,40 @@
+{
+  "name": "@#{npm_scope}#/#{project_name}#",
+  "description": "#{project_description}#",
+  "module": "src/index.ts",
+  "type": "module",
+  "version": "0.0.12",
+  "main": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "files": ["dist", "src", "LICENSE", "README.md"],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/#{npm_scope}#/#{project_name}#.git"
+  },
+  "homepage": "https://github.com/#{npm_scope}#/#{project_name}##readme",
+  "bugs": {
+    "url": "https://github.com/#{npm_scope}#/#{project_name}#/issues"
+  },
+  "scripts": {
+    "build": "tsup --config tsup.config.ts",
+    "check": "biome check",
+    "check:fix": "biome check --fix --no-errors-on-unmatched --files-ignore-unknown=true",
+    "test": "bun test",
+    "typecheck": "tsc --noEmit",
+    "fullcheck": "bun run check && bun run typecheck && bun run test"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
+    "@types/bun": "latest",
+    "lefthook": "^1.8.4",
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.2"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    }
+  }
+}
