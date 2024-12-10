@@ -1,4 +1,4 @@
-# #{npm_scope}#/#{project_name}#
+# l-etabli/lucia-auth
 
 This project is a template for creating typscript libraries.
 

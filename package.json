@@ -1,6 +1,6 @@
 {
-  "name": "@#{npm_scope}#/#{project_name}#",
-  "description": "#{project_description}#",
+  "name": "@l-etabli/lucia-auth",
+  "description": "This is a library that follows the recommandations of https://lucia-auth.com/ to implement session based authentication",
   "module": "src/index.ts",
   "type": "module",
   "version": "0.0.12",
@@ -9,11 +9,11 @@
   "files": ["dist", "src", "LICENSE", "README.md"],
   "repository": {
     "type": "git",
-    "url": "https://github.com/#{npm_scope}#/#{project_name}#.git"
+    "url": "https://github.com/l-etabli/lucia-auth.git"
   },
-  "homepage": "https://github.com/#{npm_scope}#/#{project_name}##readme",
+  "homepage": "https://github.com/l-etabli/lucia-auth#readme",
   "bugs": {
-    "url": "https://github.com/#{npm_scope}#/#{project_name}#/issues"
+    "url": "https://github.com/l-etabli/lucia-auth/issues"
   },
   "scripts": {
     "build": "tsup --config tsup.config.ts",
