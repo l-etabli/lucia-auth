@@ -36,5 +36,8 @@
       "import": "./dist/index.mjs",
       "require": "./dist/index.cjs"
     }
+  },
+  "dependencies": {
+    "oslo": "^1.2.1"
   }
 }
