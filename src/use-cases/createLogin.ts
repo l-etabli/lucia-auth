@@ -1,11 +1,12 @@
 import { Argon2id } from "oslo/password";
+import { sanitizePassword } from "../entities/password";
 import {
   createSession,
   createSessionCookie,
   createSessionToken,
 } from "../entities/session";
 import type { AuthDependencies, EmailAndPassword } from "../types";
-import { sanitizeEmail, sanitizePassword } from "../utils";
+import { sanitizeEmail } from "../utils";
 
 export const createLogin =
   ({ authRepository, hashingParams, cookieAccessor }: AuthDependencies) =>
