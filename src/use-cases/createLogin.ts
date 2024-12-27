@@ -1,15 +1,14 @@
 import { Argon2id } from "oslo/password";
-
+import {
+  createSession,
+  createSessionCookie,
+  createSessionToken,
+} from "../entities/session";
 import type { AuthDependencies, EmailAndPassword } from "../types";
 import { sanitizeEmail, sanitizePassword } from "../utils";
 
 export const createLogin =
-  ({
-    lucia,
-    authRepository,
-    hashingParams,
-    cookieAccessor,
-  }: AuthDependencies) =>
+  ({ authRepository, hashingParams, cookieAccessor }: AuthDependencies) =>
   async (params: EmailAndPassword) => {
     const email = sanitizeEmail(params.email);
     const password = sanitizePassword(params.password);
@@ -38,7 +37,8 @@ export const createLogin =
       throw new Error("Invalid email or password");
     }
 
-    const session = await lucia.createSession(user.id, {});
-    const cookie = lucia.createSessionCookie(session.id);
-    cookieAccessor.set(cookie);
+    const token = createSessionToken();
+    const session = createSession({ userId: user.id, token });
+    await authRepository.session.insert(session);
+    cookieAccessor.set(createSessionCookie(token));
   };

@@ -1,5 +1,30 @@
-import type { Cookie, Lucia, User } from "lucia";
 import type { TypedArray } from "oslo";
+import type { Session } from "./entities/session";
+
+export type User = {
+  id: string;
+  email: string;
+  emailVerifiedAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+  isActive: boolean;
+};
+
+export interface CookieAttributes {
+  secure?: boolean;
+  path?: string;
+  domain?: string;
+  sameSite?: "lax" | "strict" | "none";
+  httpOnly?: boolean;
+  maxAge?: number;
+  expires?: Date;
+}
+
+export type Cookie = {
+  name: string;
+  value: string;
+  attributes: CookieAttributes;
+};
 
 export type EmailAndPassword = {
   email: string;
@@ -75,6 +100,13 @@ export type AuthRepository = {
     deleteAllForUser: (userId: string) => Promise<void>;
     deleteByTokenHash: (tokenHash: string) => Promise<void>;
   };
+
+  session: {
+    insert: (session: Session) => Promise<void>;
+    findById: (id: string) => Promise<Session | undefined>;
+    update: (session: Session) => Promise<void>;
+    delete: (id: string) => Promise<void>;
+  };
 };
 
 export type HashingParams = {
@@ -88,8 +120,9 @@ export type HashingParams = {
 export type AuthDependencies = {
   cookieAccessor: CookieAccessor;
   resetPasswordBaseUrl: string;
-  lucia: Lucia;
   authRepository: AuthRepository;
   emails: AuthEmailSenders;
   hashingParams?: HashingParams;
 };
+
+export type { Session };
