@@ -75,6 +75,7 @@ export type AuthRepository = {
   user: {
     insert: (params: UserWithPasswordHash) => Promise<void>;
     findByEmail: (email: string) => Promise<UserWithPasswordHash | undefined>;
+    findById: (id: string) => Promise<UserWithPasswordHash | undefined>;
     markEmailVerified: (params: {
       userId: string;
       verifiedAt: Date;
@@ -106,6 +107,7 @@ export type AuthRepository = {
     findById: (id: string) => Promise<Session | undefined>;
     update: (session: Session) => Promise<void>;
     delete: (id: string) => Promise<void>;
+    deleteAllForUser: (userId: string) => Promise<void>;
   };
 };
 

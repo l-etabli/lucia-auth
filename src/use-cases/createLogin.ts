@@ -39,7 +39,9 @@ export const createLogin =
     }
 
     const token = createSessionToken();
-    const session = createSession({ userId: user.id, token });
+    const session = await createSession({ userId: user.id, token });
     await authRepository.session.insert(session);
-    cookieAccessor.set(createSessionCookie(token));
+    cookieAccessor.set(
+      createSessionCookie({ token, expiresAt: session.expiresAt }),
+    );
   };

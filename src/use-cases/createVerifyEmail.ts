@@ -1,20 +1,22 @@
-import type { User } from "lucia";
 import { isWithinExpirationDate } from "oslo";
+import {
+  createSession,
+  createSessionCookie,
+  createSessionToken,
+} from "../entities/session";
 import type { AuthDependencies, EmailVerificationCode } from "../types";
+import { createValidateRequest } from "./createValidateRequest";
 
-export const createVerifyEmail = ({
-  lucia,
-  authRepository,
-  cookieAccessor,
-}: AuthDependencies) => {
+export const createVerifyEmail = (deps: AuthDependencies) => {
+  const validateRequest = createValidateRequest(deps);
+
   return async ({
-    sessionId,
     candidateCode,
   }: {
-    sessionId: string;
     candidateCode: string;
   }) => {
-    const { user } = await lucia.validateSession(sessionId);
+    const { authRepository, cookieAccessor } = deps;
+    const { user } = await validateRequest();
     if (!user) throw new Error("Unauthorized");
 
     const emailVerification =
@@ -28,15 +30,26 @@ export const createVerifyEmail = ({
     )
       throw new Error("Bad request");
 
-    await lucia.invalidateUserSessions(user.id);
+    await authRepository.session.deleteAllForUser(user.id);
+
     await authRepository.user.markEmailVerified({
       verifiedAt: new Date(),
       userId: user.id,
     });
 
-    const session = await lucia.createSession(user.id, {});
-    const cookie = lucia.createSessionCookie(session.id);
-    cookieAccessor.set(cookie);
+    const sessionToken = createSessionToken();
+    const session = await createSession({
+      userId: user.id,
+      token: sessionToken,
+    });
+    await authRepository.session.insert(session);
+
+    cookieAccessor.set(
+      createSessionCookie({
+        token: sessionToken,
+        expiresAt: session.expiresAt,
+      }),
+    );
   };
 };
 
@@ -47,14 +60,14 @@ const isCodeValid = ({
 }: {
   dbEmailVerification: EmailVerificationCode | undefined;
   candidateCode: string;
-  user: User;
+  user: { id: string };
 }): boolean => {
   if (!dbEmailVerification || candidateCode !== dbEmailVerification.code)
     return false;
 
   if (!isWithinExpirationDate(dbEmailVerification.expiresAt)) return false;
 
-  if (dbEmailVerification.email !== user.email) return false;
+  if (dbEmailVerification.userId !== user.id) return false;
 
   return true;
 };

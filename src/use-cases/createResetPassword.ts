@@ -1,5 +1,5 @@
-import { TimeSpan, generateIdFromEntropySize } from "lucia";
 import { createDate } from "oslo";
+import { alphabet, generateRandomString } from "oslo/crypto";
 import { sha256 } from "oslo/crypto";
 import { encodeHex } from "oslo/encoding";
 
@@ -11,12 +11,12 @@ export const createResetPassword =
     const user = await authRepository.user.findByEmail(email);
     if (!user || !user.emailVerifiedAt) throw new Error("Invalid email");
     await authRepository.resetPasswordToken.deleteAllForUser(user.id);
-    const token = generateIdFromEntropySize(25); // 40 character
+    const token = generateRandomString(40, alphabet("a-z", "0-9")); // 40 characters
     const tokenHash = encodeHex(await sha256(new TextEncoder().encode(token)));
     await authRepository.resetPasswordToken.insert({
       userId: user.id,
       tokenHash,
-      expiresAt: createDate(new TimeSpan(2, "h")),
+      expiresAt: new Date(Date.now() + 2 * 60 * 60 * 1000), // 2 hours
     });
     await emails.sendPasswordResetLink({
       email: user.email,

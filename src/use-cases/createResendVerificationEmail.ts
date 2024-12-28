@@ -1,5 +1,4 @@
-import { TimeSpan } from "lucia";
-import { createDate } from "oslo";
+import { TimeSpan, createDate } from "oslo";
 import { alphabet, generateRandomString } from "oslo/crypto";
 
 import type { AuthDependencies } from "../types";

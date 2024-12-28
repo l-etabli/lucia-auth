@@ -3,15 +3,15 @@ import { sha256 } from "oslo/crypto";
 import { encodeHex } from "oslo/encoding";
 import { Argon2id } from "oslo/password";
 
+import {
+  createSession,
+  createSessionCookie,
+  createSessionToken,
+} from "../entities/session";
 import type { AuthDependencies } from "../types";
 
 export const createChangePassword =
-  ({
-    authRepository,
-    lucia,
-    hashingParams,
-    cookieAccessor,
-  }: AuthDependencies) =>
+  ({ authRepository, hashingParams, cookieAccessor }: AuthDependencies) =>
   async ({
     newPassword,
     resetPasswordToken,
@@ -34,7 +34,7 @@ export const createChangePassword =
       throw new Error("Invalid token");
     }
 
-    await lucia.invalidateUserSessions(token.userId);
+    await authRepository.session.deleteAllForUser(token.userId);
 
     const passwordHash = await new Argon2id(hashingParams).hash(newPassword);
 
@@ -43,7 +43,17 @@ export const createChangePassword =
       passwordHash,
     });
 
-    const session = await lucia.createSession(token.userId, {});
-    const cookie = lucia.createSessionCookie(session.id);
-    cookieAccessor.set(cookie);
+    const sessionToken = createSessionToken();
+    const session = await createSession({
+      userId: token.userId,
+      token: sessionToken,
+    });
+    await authRepository.session.insert(session);
+
+    cookieAccessor.set(
+      createSessionCookie({
+        token: sessionToken,
+        expiresAt: session.expiresAt,
+      }),
+    );
   };
